@@ -1,14 +1,11 @@
-# Virtual environment
+# Local content
 venv/
-
-# Python cache
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+data/  # Optional: Keep if you want to ignore the large data folder
 
-# Data folder (optional: if too large, ignore and add README note)
-data/
-
-# Model (optional: if sensitive, but include for demo)
-# model.pkl
+# Remote content (Python template)
+*.py[cod]
+*$py.class
