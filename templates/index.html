@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat vs Dog Adventure</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            overflow: hidden;
+            position: relative;
+        }
+        /* Animated particles */
+        @keyframes moveParticles {
+            0% { transform: translateY(100vh); }
+            100% { transform: translateY(-10vh); }
+        }
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: moveParticles linear infinite;
+        }
+        .particle:nth-child(1) { left: 10%; animation-duration: 15s; }
+        .particle:nth-child(2) { left: 20%; animation-duration: 12s; }
+        .particle:nth-child(3) { left: 30%; animation-duration: 18s; }
+        .particle:nth-child(4) { left: 40%; animation-duration: 10s; }
+        .particle:nth-child(5) { left: 50%; animation-duration: 14s; }
+        /* Welcome Screen */
+        .welcome {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            animation: fadeIn 0.5s ease-in;
+        }
+        .welcome h1 {
+            color: #333;
+            font-weight: 600;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        .welcome p {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+        .welcome button {
+            padding: 12px 25px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .welcome button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        /* Game Area */
+        .game-area {
+            display: none;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            animation: slideIn 0.5s ease-in;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .game-area h2 {
+            color: #333;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+        input[type="file"] {
+            margin: 10px 0;
+            padding: 10px;
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        input[type="file"]:hover {
+            border-color: #45a049;
+        }
+        button#classify {
+            padding: 12px 25px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 10px 0;
+        }
+        button#classify:hover {
+            background-color: #1976D2;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        button#reveal {
+            padding: 12px 25px;
+            background-color: #FF9800;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        button#reveal:hover {
+            background-color: #F57C00;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        #preview {
+            margin: 20px 0;
+        }
+        #preview img {
+            max-width: 300px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        #preview img:hover {
+            transform: scale(1.05);
+        }
+        #progress {
+            width: 0;
+            height: 6px;
+            background-color: #4CAF50;
+            margin: 10px auto;
+            transition: width 0.1s linear;
+            border-radius: 5px;
+        }
+        #confidence-meter {
+            width: 80%;
+            max-width: 300px;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin: 10px auto;
+            overflow: hidden;
+            display: none;
+        }
+        #confidence-meter-fill {
+            height: 100%;
+            background: #4CAF50;
+            border-radius: 10px;
+            text-align: right;
+            padding-right: 5px;
+            color: white;
+            font-size: 0.9em;
+            transition: width 0.5s;
+        }
+        #result {
+            font-size: 1.5em;
+            color: #333;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 400px;
+            animation: fadeIn 0.5s ease-in;
+            display: none;
+        }
+        #accuracy {
+            font-size: 1.2em;
+            color: #666;
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff3e0;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: none;
+            animation: popUp 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes popUp {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .dog { color: #2196F3; } /* Blue for Dog */
+        .cat { color: #FF9800; } /* Orange for Cat */
+        #loading {
+            display: none;
+            font-size: 1.1em;
+            color: #666;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated particles -->
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+
+    <!-- Welcome Screen -->
+    <div class="welcome" id="welcome">
+        <h1>Cat vs Dog Adventure! 🎉</h1>
+        <p>Embark on a fun journey! Upload an image, classify it, and reveal if it’s a cat or dog. Tips: Use clear photos for best results! 🐾</p>
+        <button onclick="startGame()">Start Adventure 🚀</button>
+    </div>
+
+    <!-- Game Area -->
+    <div class="game-area" id="gameArea">
+        <h2>Let’s Play!</h2>
+        <input type="file" id="imageUpload" accept="image/*">
+        <br><br>
+        <button id="classify" onclick="classifyImage()">Upload & Prepare 🖼️</button>
+        <button id="reveal" onclick="revealPrediction()">Reveal Prediction! 🎭</button>
+        <div id="preview"></div>
+        <div id="progress"></div>
+        <div id="loading">Classifying... ⏳</div>
+        <div id="confidence-meter"><div id="confidence-meter-fill"></div></div>
+        <div id="result"></div>
+        <div id="accuracy">Model Accuracy: 69% 🏅</div>
+    </div>
+
+    <script>
+        let predictionData = null;
+
+        function startGame() {
+            document.getElementById('welcome').style.display = 'none';
+            document.getElementById('gameArea').style.display = 'block';
+        }
+
+        function classifyImage() {
+            const fileInput = document.getElementById('imageUpload');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select an image!');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('preview');
+                preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                
+                const loading = document.getElementById('loading');
+                const progress = document.getElementById('progress');
+                loading.style.display = 'block';
+                progress.style.width = '0';
+                
+                let width = 0;
+                const interval = setInterval(() => {
+                    if (width >= 100) {
+                        clearInterval(interval);
+                    } else {
+                        width += 5;
+                        progress.style.width = width + '%';
+                    }
+                }, 100);
+
+                const formData = new FormData();
+                formData.append('image', file);
+
+                fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    clearInterval(interval);
+                    loading.style.display = 'none';
+                    progress.style.width = '100%';
+                    setTimeout(() => progress.style.width = '0', 500);
+                    predictionData = data;
+                    document.getElementById('classify').style.display = 'none';
+                    document.getElementById('reveal').style.display = 'block';
+                })
+                .catch(error => {
+                    clearInterval(interval);
+                    loading.style.display = 'none';
+                    progress.style.width = '0';
+                    console.error('Error:', error);
+                    document.getElementById('result').innerHTML = 'Error preparing image.';
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function revealPrediction() {
+            if (!predictionData) return;
+
+            const result = document.getElementById('result');
+            const confidenceMeter = document.getElementById('confidence-meter');
+            const confidenceFill = document.getElementById('confidence-meter-fill');
+            const accuracy = document.getElementById('accuracy');
+
+            const label = predictionData.label;
+            const confidence = parseFloat(predictionData.confidence.replace('%', ''));
+            const emoji = label === 'Dog' ? '🐶' : '🐱';
+            const className = label.toLowerCase();
+
+            confidenceFill.style.width = confidence + '%';
+            confidenceFill.textContent = confidence + '%';
+            confidenceMeter.style.display = 'block';
+            result.innerHTML = `Prediction: <span class="${className}">${label} ${emoji}</span>`;
+            result.style.display = 'block';
+            accuracy.style.display = 'block';
+
+            // Play sound (uncomment and add audio file if desired)
+            // const audio = new Audio('success.mp3');
+            // audio.play();
+
+            document.getElementById('reveal').style.display = 'none';
+        }
+
+        // Initial state
+        document.getElementById('welcome').style.display = 'block';
+    </script>
+</body>
+</html>
